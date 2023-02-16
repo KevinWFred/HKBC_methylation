@@ -247,9 +247,13 @@ pca_plot=function(dat=allmeth.combat,pheno=allpheno)
   plot(pcadat[,1],pcadat[,2],col=pheno$type,pch=as.numeric(pheno$batch),cex.axis=1.3,cex.lab=1.3,xlim=c(xmin,xmax),xlab="PC1",ylab="PC2")
   
   legend("topleft",legend=c("normal_1","normal_2","tumor_1","tumor_2"),col=c(1,1,2,2),pch=c(1,2,1,2),cex=1.2)
+  return(pcadat)
   
 }
-pca_plot(dat=allmeth.combat,pheno=allpheno)
-pca_plot(dat=allmeth,pheno=allpheno)
-
+tmp=pca_plot(dat=allmeth.combat,pheno=allpheno)
+tmp=pca_plot(dat=allmeth,pheno=allpheno)
+all(allpheno$NCI_ID==rownames(tmp))
+allpheno=cbind(allpheno,tmp[,1:20])
+allpheno$Tree=factor(allpheno$Tree,levels = c(1,2,3),ordered = T)
 save(allmeth,allmeth.combat,allpheno,file="../result/combat_tumor_normal.RData")
+

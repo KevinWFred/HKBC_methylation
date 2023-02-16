@@ -15,6 +15,9 @@ get_pvalues=function(opt="tumor")
 }
 
 res=get_pvalues()
+res_normal=get_pvalues(opt="normal")
+res_lr=get_pvalues(opt="tumor_lr")
+res_normal_lr=get_pvalues(opt="normal_lr")
 qqplot=function(pvalue=NULL,main="",xlim=NULL,ylim=NULL,title="")
   
 {
@@ -33,5 +36,11 @@ qqplot=function(pvalue=NULL,main="",xlim=NULL,ylim=NULL,title="")
   
 }
 png("../result/tumor_probes_qqplot.png",res=100)
-qqplot(res$P,title="")
+qqplot(res$P,title="Tumor")
 dev.off()
+qqplot(res_normal$P,title="Normal")
+qqplot(res_lr$P,title="")
+qqplot(res_normal_lr$P,title="")
+
+plot(-log10(res_normal$P),-log10(res$P),xlab="Normal -log10(P)",ylab="Tumor -log10(P)",cex.lab=1.2,cex.axis=1.2)
+plot(res_normal$Beta,res$Beta,xlab="Normal effect size",ylab="Tumor effect size", cex.lab=1.2,cex.axis=1.2)
