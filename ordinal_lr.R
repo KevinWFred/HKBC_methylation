@@ -78,5 +78,3 @@ for (i in 1:nrow(meth))
 outfile=as.character(args[4])
 write.table(out,file=outfile,row.names = F,sep="\t",quote=F)
 print("done")
-
-i=which(rownames(meth)=="cg13911857")
