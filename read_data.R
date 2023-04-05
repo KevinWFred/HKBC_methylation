@@ -161,8 +161,6 @@ plot_2pca=function(dat1=meth_batch1,dat2=meth_batch2)
   
   legend("topleft",legend=c("Batch1","Batch2"),col=c("blue","green"),pch=1,cex=1.2)
   
-  
-  
 }
 tumor_meth_batch1=tumor_meth[,colnames(tumor_meth) %in% colnames(meth1_tumor)]
 tumor_meth_batch2=tumor_meth[,colnames(tumor_meth) %in% colnames(meth2_tumor)]
@@ -235,9 +233,9 @@ tsne_plot=function(dat=allmeth.combat,seed=1000,perplexity=5,pheno=allpheno)
 tsne_plot(dat=allmeth.combat,seed=2000,perplexity=3,pheno=allpheno)
 tsne_plot(dat=allmeth,seed=1000,perplexity=3,pheno=allpheno)
 
-pca_plot=function(dat=allmeth.combat,pheno=allpheno)
+pca_plot=function(dat=allmeth.combat,pheno=allpheno,optscale=F)
 {
-  pcadat=prcomp(t(dat),scale = F)
+  pcadat=prcomp(t(dat),scale = optscale)
   pcadat=pcadat$x
   if (any(rownames(pcadat)!=pheno$NCI_ID)) stop("wrong order")
   xmin=min(pcadat[,1])
@@ -250,10 +248,49 @@ pca_plot=function(dat=allmeth.combat,pheno=allpheno)
   return(pcadat)
   
 }
-tmp=pca_plot(dat=allmeth.combat,pheno=allpheno)
+
 tmp=pca_plot(dat=allmeth,pheno=allpheno)
 all(allpheno$NCI_ID==rownames(tmp))
 allpheno=cbind(allpheno,tmp[,1:20])
 allpheno$Tree=factor(allpheno$Tree,levels = c(1,2,3),ordered = T)
-save(allmeth,allmeth.combat,allpheno,file="../result/combat_tumor_normal.RData")
+
+tmp=pca_plot(dat=allmeth.combat,pheno=allpheno)
+all(allpheno$NCI_ID==rownames(tmp))
+allpheno_combat=cbind(allpheno[,1:6],tmp[,1:20])
+
+tumor_pheno=allpheno[allpheno$type=="tumor",]
+tumor_meth=allmeth[,colnames(allmeth) %in% tumor_pheno$NCI_ID]
+all(colnames(tumor_meth)==tumor_pheno$NCI_ID)
+normal_pheno=allpheno[allpheno$type=="normal",]
+normal_meth=allmeth[,colnames(allmeth) %in% normal_pheno$NCI_ID]
+all(colnames(normal_meth)==normal_pheno$NCI_ID)
+idx=match(gsub("_T","",colnames(tumor_meth)),colnames(normal_meth))
+normal_meth=normal_meth[,idx]
+all(colnames(normal_meth) == gsub("_T","",colnames(tumor_meth)))
+all(rownames(normal_meth) %in%rownames(tumor_meth))
+normal_pheno=normal_pheno[match(colnames(normal_meth),normal_pheno$NCI_ID),]
+all(colnames(normal_meth)==normal_pheno$NCI_ID)
+tmp=pca_plot(dat=tumor_meth,pheno=tumor_pheno)
+tumor_pheno=cbind(tumor_pheno[,1:6],tmp[,1:20])
+tmp=pca_plot(dat=normal_meth,pheno=normal_pheno)
+normal_pheno=cbind(normal_pheno[,1:6],tmp[,1:20])
+diff_meth=tumor_meth-normal_meth
+tmp=pca_plot(dat=diff_meth,pheno=tumor_pheno)
+diff_pheno=cbind(tumor_pheno[,1:6],tmp[,1:20])
+tumor_meth_combat=allmeth.combat[,colnames(allmeth.combat) %in% tumor_pheno$NCI_ID]
+normal_meth_combat=allmeth.combat[,colnames(allmeth.combat) %in% normal_pheno$NCI_ID]
+all(colnames(normal_meth_combat)==normal_pheno$NCI_ID)
+#colnames(normal_meth_combat)=paste0(colnames(normal_meth_combat),"_T")
+idx=match(gsub("_T","",colnames(tumor_meth_combat)),colnames(normal_meth_combat))
+normal_meth_combat=normal_meth_combat[,idx]
+all(colnames(normal_meth_combat) == gsub("_T","",colnames(tumor_meth_combat)))
+all(rownames(normal_meth_combat) %in%rownames(tumor_meth_combat))
+tmp=pca_plot(dat=tumor_meth_combat,pheno=tumor_pheno)
+tumor_combat_pheno=cbind(tumor_pheno[,1:6],tmp[,1:20])
+tmp=pca_plot(dat=normal_meth_combat,pheno=normal_pheno)
+normal_combat_pheno=cbind(normal_pheno[,1:6],tmp[,1:20])
+diff_meth_combat=tumor_meth_combat-normal_meth_combat
+tmp=pca_plot(dat=diff_meth_combat,pheno=tumor_pheno)
+diff_pheno_combat=cbind(tumor_pheno,tmp[,1:20])
+save(diff_pheno_combat,diff_meth_combat,diff_pheno,diff_meth,tumor_meth,tumor_pheno,tumor_combat_pheno,normal_meth,normal_pheno,normal_combat_pheno,allmeth,allmeth.combat,allpheno,allpheno_combat,file="../result/combat_tumor_normal.RData")
 
