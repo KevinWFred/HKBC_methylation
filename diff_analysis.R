@@ -317,13 +317,15 @@ plot_DMR=function(Data=normal_meth_combat,Data.group=normal_pheno$Tree,bhres=bum
     annotation=annotation[annotation$Name %in% rownames(Data),]
     idx=match(cpgs,annotation$Name)
     probe.annotation=annotation[idx,]
-    groups=as.character(unique(Data.group))
+    #groups=as.character(unique(Data.group))
+    groups=c("Separate Trees","Shared Tree","Tumor Only")
+    levels(Data.group)=c("Tumor Only","Shared Tree","Separate Trees")
     title=unique(bhres$dat4$genename[which(bhres$dat4$DMR==dmrs[i])])
     tmp=Plot.gene(Data, Data.group, probe.annotation,plot.title=title,groups = groups,ylim.max = ymax)
     print(tmp$Line)
     ggsave(paste0("../result/",outprefix,"DMR",i,"_line.pdf"),width=12,height=8)
     print(tmp$Box)
-    ggsave(paste0("../result/",outprefix,"DMR",i,"_box.pdf"),width=12,height=8)
+    ggsave(paste0("../result/",outprefix,"DMR",i,"_box.pdf"),width=11,height=6)
     plotres[i]=tmp
   }
   return(plotres)

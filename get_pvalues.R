@@ -118,10 +118,21 @@ library(missMethyl)
 
 #for tumor-normal comparison
 load("../result/diff_tumor_normal.RData")
-generich=function(dat=out,opt="GO")
+generich=function(dat=out,opt="GO",opt1="all")
 {
   dat$P.adj=p.adjust(dat$typetumor,method="bonferroni")
-  selectprobes=rownames(dat)[which(dat$P.adj<0.05)]
+  if (opt1=="all")
+  {
+    selectprobes=rownames(dat)[which(dat$P.adj<0.05)]
+  }
+  if (opt1=="hyper")
+  {
+    selectprobes=rownames(dat)[which(dat$P.adj<0.05 & dat$mean_tumor-dat$mean_normal>0.1)]
+  }
+  if (opt1=="hypo")
+  {
+    selectprobes=rownames(dat)[which(dat$P.adj<0.05 & dat$mean_normal-dat$mean_tumor>0.1)]
+  }
   
   par(mfrow=c(1,1))
   gst <- gometh(sig.cpg=selectprobes, collection=opt,sig.genes = T, array.type = c("EPIC"))
@@ -133,6 +144,7 @@ diff_gst_GO=generich()
 tmp=cbind.data.frame(GO=rownames(diff_gst_GO),diff_gst_GO)
 tmp=tmp[order(tmp$P.DE),]
 tmp=tmp[tmp$FDR<0.05,]
+
 write.csv(tmp,file="../result/diff_tumor_normal_genrich_GO.csv",row.names = F)
 diff_gst_KEGG=generich(opt="KEGG")
 tmp=cbind.data.frame(KEGG=rownames(diff_gst_KEGG),diff_gst_KEGG)
@@ -140,3 +152,26 @@ tmp=tmp[order(tmp$P.DE),]
 tmp=tmp[tmp$P.DE<0.05,]
 write.csv(tmp,file="../result/diff_tumor_normal_genrich_KEGG.csv",row.names = F)
 save(diff_gst_GO,diff_gst_KEGG,file="../result/diff_tumor_normal_genrichres.RData")
+
+diff_gst_GO_hyper=generich(opt1="hyper")
+tmp=cbind.data.frame(GO=rownames(diff_gst_GO_hyper),diff_gst_GO_hyper)
+tmp=tmp[order(tmp$P.DE),]
+tmp=tmp[tmp$FDR<0.05,]
+write.csv(tmp,file="../result/diff_tumor_normal_genrich_GO_hyper.csv",row.names = F)
+
+diff_gst_GO_hypo=generich(opt1="hypo")
+diff_gst_KEGG_hyper=generich(opt="KEGG",opt1="hyper")
+tmp=cbind.data.frame(KEGG=rownames(diff_gst_KEGG_hyper),diff_gst_KEGG_hyper)
+tmp=tmp[order(tmp$P.DE),]
+tmp=tmp[tmp$P.DE<0.05,]
+write.csv(tmp,file="../result/diff_tumor_normal_genrich_KEGG_hyper.csv",row.names = F)
+
+diff_gst_KEGG_hypo=generich(opt="KEGG",opt1="hypo")
+tmp=cbind.data.frame(KEGG=rownames(diff_gst_KEGG_hypo),diff_gst_KEGG_hypo)
+tmp=tmp[order(tmp$P.DE),]
+tmp=tmp[tmp$P.DE<0.05,]
+write.csv(tmp,file="../result/diff_tumor_normal_genrich_KEGG_hypo.csv",row.names = F)
+
+save(diff_gst_GO,diff_gst_KEGG,diff_gst_GO_hyper,diff_gst_GO_hypo,
+     diff_gst_KEGG_hyper,diff_gst_KEGG_hypo,file="../result/diff_tumor_normal_genrichres.RData")
+

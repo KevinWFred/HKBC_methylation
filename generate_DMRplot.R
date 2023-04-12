@@ -327,6 +327,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   plot.generegion$Group=factor(plot.generegion$Group,levels=as.character(unique(plot.generegion$Group)))
   # Methylation scatterplot
   allcolors=c("blue","red","green","purple","brown","black")
+  allcolors=c("#E64B35FF","#4DBBD5FF","#00A087FF","purple","brown","black")
   p1 <- ggplot() + 
     theme_bw() +
     theme(text = element_text(size=14),
@@ -338,7 +339,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
           legend.direction="horizontal",
           legend.position = "top",
           legend.title = element_blank(),legend.text = element_text(size=10),axis.title.x = element_text(margin = margin(t = 15))) +
-    geom_point(data = plot.generegion, aes(x=Pos, y=Beta, color=Group),size=1.5) + labs(x="Chromosome coordinate",y="Mean of beta") +
+    geom_point(data = plot.generegion, aes(x=Pos, y=Beta, color=Group),size=1.5) + labs(x="Chromosome coordinate",y="Mean of beta value") +
     scale_color_manual(values = allcolors[1:length(Data.group.unique)])+
     coord_cartesian(ylim = c(ylim.min, ylim.max))
   for (y in rev(levels(plot.generegion$Group))) {
@@ -372,7 +373,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   plotNew <- p1 +
     scale_x_continuous(breaks=seq(x1,x2,length.out=3)) +
     annotation_custom(grob = leg1, xmin = x1, xmax = x2, ymin = 0.85*ylim.max, ymax = 0.95*ylim.max)
-  p=plotNew+p2+theme(text = element_text(size=14), axis.text = element_text(face="bold"), plot.title = element_text(hjust = 0.5),
+  p=plotNew+p2+theme(text = element_text(size=16), axis.text = element_text(face="bold"), plot.title = element_text(hjust = 0.5),
                      legend.title = element_blank(), 
                      legend.position = "bottom")+guides(color = FALSE)+guides(fill = guide_legend(nrow = 1))
   
@@ -426,7 +427,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   
   # Methylation boxplot
   p.3 <- ggplot() + theme_bw() +
-    theme(text = element_text(size=14),
+    theme(text = element_text(size=22,face="bold"),
           axis.text = element_text(face="bold"),
           axis.line = element_line(colour = "black"),
           panel.grid.major = element_blank(),
@@ -439,8 +440,8 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
     p.3 <- p.3 + geom_line(data = additional.line.df, aes(x=Pos, y=Mean, group=1), color = "black", linetype = "dashed")
   }
   p.3 <- p.3 +
-    geom_boxplot(data = plot.df, aes(x=Probe, y=Beta, color=Group), alpha = 0.5, width = 0.6)+scale_color_manual(values = allcolors[1:length(Data.group.unique)])+
-    labs(x="CpG",y="Beta")+
+    geom_boxplot(data = plot.df, aes(x=Probe, y=Beta, color=Group), alpha = 1, width = 0.6)+scale_color_manual(values = allcolors[1:length(Data.group.unique)])+
+    labs(x="CpG",y="Beta value")+
     coord_cartesian(ylim = c(ylim.min, ylim.max))
   
   leg1 <- gtable_filter(ggplot_gtable(ggplot_build(p.3)), "guide-box") 
@@ -463,7 +464,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
     #geom_vline(xintercept = 0.4)+
     #geom_segment(aes(x = 0.4, y = 0, xend = 0.4, yend = 1))+
     #geom_hline(yintercept = -0.1, linetype = "dashed") +
-    ggtitle(paste(plot.title,", ", "chr",probe.annotation$chr[1],", ", length(unique(plot.df$Probe)), " probes", sep='')) +
+    #ggtitle(paste(plot.title,", ", "chr",probe.annotation$chr[1],", ", length(unique(plot.df$Probe)), " probes", sep='')) +
     theme(axis.text.x = element_text(angle = 30, hjust = 1),
           plot.title = element_text(hjust = 0.5),
           legend.title = element_blank(), 
@@ -476,7 +477,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   plotNew <- p.3 + 
     annotation_custom(grob = leg1,xmin = x1, xmax = x2, ymin = 0.85*ylim.max, ymax = 0.95*ylim.max)
   p.3=plotNew+p2+theme(plot.title = element_text(hjust = 0.5),
-                       legend.title = element_blank(), legend.text=element_text(size=10),
+                       legend.title = element_blank(), legend.text=element_text(size=20),
                        legend.direction="horizontal",
                        legend.position = "bottom")+guides(color = "none")+guides(fill = guide_legend(nrow = 1))
   
