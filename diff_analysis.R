@@ -302,8 +302,21 @@ write.table(tmp1,file="../result/bumphunter_normal_tree3_REC8.csv",row.names=F,s
 tmp1=tmp[tmp$DMR=="DMR3",1:3]
 write.table(tmp1,file="../result/bumphunter_normal_tree3_DNM3.csv",row.names=F,sep=",",quote=F)
 write.table(tmp,file="../result/bumphunter_normal_tree3.csv",row.names=F,sep=",",quote=F)
+tmp=bumphunter_normal_tree3$dat4
+tmp$meanBeta_tree1=tmp$meanBeta_tree3=tmp$meanBeta_tree3=NA
+for (i in 1:nrow(tmp))
+{
+  idx=which(rownames(normal_meth)==tmp$cpg[i])
+  idx1=which(normal_pheno$Tree==1)
+  tmp$meanBeta_tree1[i]=round(mean(unlist(normal_meth[idx,idx1]),na.rm=T),2)
+  idx2=which(normal_pheno$Tree==2)
+  tmp$meanBeta_tree2[i]=round(mean(unlist(normal_meth[idx,idx2]),na.rm=T),2)
+  idx3=which(normal_pheno$Tree==3)
+  tmp$meanBeta_tree3[i]=round(mean(unlist(normal_meth[idx,idx3]),na.rm=T),2)
+}
+write.table(tmp,file="../result/bumphunter_normal_tree3_.csv",row.names=F,sep=",",quote=F)
 
-#visualize DMR
+#visualize DMR Figure 5c and supFig 11
 source("./generate_DMRplot.R")
 library(gtable)
 plot_DMR=function(Data=normal_meth_combat,Data.group=normal_pheno$Tree,bhres=bumphunter_normal_tree3,ymax=1.1,outprefix="Normal_tree3")
@@ -318,8 +331,8 @@ plot_DMR=function(Data=normal_meth_combat,Data.group=normal_pheno$Tree,bhres=bum
     idx=match(cpgs,annotation$Name)
     probe.annotation=annotation[idx,]
     #groups=as.character(unique(Data.group))
-    groups=c("Separate Trees","Shared Tree","Tumor Only")
-    levels(Data.group)=c("Tumor Only","Shared Tree","Separate Trees")
+    groups=c("Tumour Only","Shared Tree","Multiple trees")
+    levels(Data.group)=c("Tumour Only","Shared Tree","Multiple trees") #the legend position GIMP
     title=unique(bhres$dat4$genename[which(bhres$dat4$DMR==dmrs[i])])
     tmp=Plot.gene(Data, Data.group, probe.annotation,plot.title=title,groups = groups,ylim.max = ymax)
     print(tmp$Line)
@@ -332,11 +345,54 @@ plot_DMR=function(Data=normal_meth_combat,Data.group=normal_pheno$Tree,bhres=bum
 }
 allplotres1=plot_DMR(Data=normal_meth)
 
+fig11b=function(dat=bumphunter_hyper_normal_tree3$dat4,gene="REC8")
+{
+  idx=which(dat$genename==gene)
+  cpgs=dat$cpg[idx]
+  all(rownames(normal_meth)==rownames(tumor_meth))
+  idx=match(cpgs,rownames(normal_meth))
+  dat1=as.data.frame(t(cbind.data.frame(normal_meth[idx,])))
+  dat2=as.data.frame(t(cbind.data.frame(tumor_meth[idx,])))
+  all(tumor_pheno$NCI_ID==rownames(dat2))
+  idx1=which(tumor_pheno$Tree==1)
+  dat3=stack(dat2[idx1,])
+  dat3$tree="tree12"
+  idx1=which(tumor_pheno$Tree==2)
+  dat4=stack(dat2[idx1,])
+  dat4$tree="tree12"
+  idx1=which(tumor_pheno$Tree==3)
+  dat5=stack(dat2[idx1,])
+  dat5$tree="tree3"
+  dat=rbind(dat3,dat4,dat5)
+  m1=glm("values~.",data=dat)
+  m2=glm("values~ind",data=dat)
+  tmp=anova(m1, m2, test="LRT")
+  tmp$`Pr(>Chi)` #2.57e-16
+  dat=as.data.frame(rbind(stack(dat1),stack(dat2)))
+  dat$Tissue="Normal"
+  dat$Tissue[411:820]="Tumour"
+  colnames(dat)=c("Beta","CpG","Tissue")
+  pdf(paste0("../result/",gene,"normal_tumor.pdf"))
+  ggplot(dat, aes(x = CpG, y = Beta,fill=Tissue)) +
+    geom_boxplot(outlier.shape=NA) + ylim(0,1)+
+    #scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_point(position=position_jitterdodge(),size=0.2,alpha=0.5) +
+    ylab("Beta value") + theme_bw() +
+    theme(text = element_text(size=16),
+          axis.text.x = element_text(angle = 30, hjust = 1),
+          plot.title = element_text(hjust = 0.5),
+          legend.title = element_blank(), 
+          legend.position=c(.1,.1)
+    )
+  dev.off()
+    
+}
+
 #DMR on another data
 allplotres1=plot_DMR(Data=tumor_meth_combat,Data.group=tumor_pheno$Tree,outprefix="Normal_tree3_tumor")
 
+
 plot_gene=function(cpgs,groups=c("1","2","3"),title="",ymax=0.8)
-  
 {
   
   annotation=epicanno

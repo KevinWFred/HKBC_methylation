@@ -327,7 +327,7 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   plot.generegion$Group=factor(plot.generegion$Group,levels=as.character(unique(plot.generegion$Group)))
   # Methylation scatterplot
   allcolors=c("blue","red","green","purple","brown","black")
-  allcolors=c("#E64B35FF","#4DBBD5FF","#00A087FF","purple","brown","black")
+  allcolors=c("#00A087FF","#4DBBD5FF","#E64B35FF","purple","brown","black")
   p1 <- ggplot() + 
     theme_bw() +
     theme(text = element_text(size=14),
@@ -373,7 +373,10 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   plotNew <- p1 +
     scale_x_continuous(breaks=seq(x1,x2,length.out=3)) +
     annotation_custom(grob = leg1, xmin = x1, xmax = x2, ymin = 0.85*ylim.max, ymax = 0.95*ylim.max)
-  p=plotNew+p2+theme(text = element_text(size=16), axis.text = element_text(face="bold"), plot.title = element_text(hjust = 0.5),
+  # p=plotNew+p2+theme(text = element_text(size=16), axis.text = element_text(face="bold"), plot.title = element_text(hjust = 0.5),
+  #                    legend.title = element_blank(), 
+  #                    legend.position = "bottom")+guides(color = FALSE)+guides(fill = guide_legend(nrow = 1))
+  p=plotNew+theme(text = element_text(size=16), axis.text = element_text(face="bold"), plot.title = element_text(hjust = 0.5),
                      legend.title = element_blank(), 
                      legend.position = "bottom")+guides(color = FALSE)+guides(fill = guide_legend(nrow = 1))
   
@@ -468,7 +471,8 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
     theme(axis.text.x = element_text(angle = 30, hjust = 1),
           plot.title = element_text(hjust = 0.5),
           legend.title = element_blank(), 
-          legend.position = "top")
+          legend.position = "top"
+          )
   
   
   x1=factor(plot.df$Probe[1],levels = rownames(Data.i))
@@ -476,11 +480,14 @@ Plot.gene <- function(Data, Data.group, probe.annotation, groups=NULL,ylim.max=1
   x2=factor(plot.df$Probe[n],levels = rownames(Data.i))
   plotNew <- p.3 + 
     annotation_custom(grob = leg1,xmin = x1, xmax = x2, ymin = 0.85*ylim.max, ymax = 0.95*ylim.max)
-  p.3=plotNew+p2+theme(plot.title = element_text(hjust = 0.5),
+  # p.3=plotNew+p2+theme(plot.title = element_text(hjust = 0.5),
+  #                      legend.title = element_blank(), legend.text=element_text(size=20),
+  #                      legend.direction="horizontal",
+  #                      legend.position = "bottom")+guides(color = "none")+guides(fill = guide_legend(nrow = 1))
+  p.3=plotNew+theme(plot.title = element_text(hjust = 0.5),
                        legend.title = element_blank(), legend.text=element_text(size=20),
                        legend.direction="horizontal",
                        legend.position = "bottom")+guides(color = "none")+guides(fill = guide_legend(nrow = 1))
-  
   if (nrow(Data.i)>50)
   {
     p.3=p.3+theme(axis.text.x=element_blank())
