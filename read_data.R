@@ -293,4 +293,7 @@ diff_meth_combat=tumor_meth_combat-normal_meth_combat
 tmp=pca_plot(dat=diff_meth_combat,pheno=tumor_pheno)
 diff_pheno_combat=cbind(tumor_pheno,tmp[,1:20])
 save(diff_pheno_combat,diff_meth_combat,diff_pheno,diff_meth,tumor_meth,tumor_pheno,tumor_combat_pheno,normal_meth,normal_pheno,normal_combat_pheno,allmeth,allmeth.combat,allpheno,allpheno_combat,file="../result/combat_tumor_normal.RData")
-
+write.csv(allmeth.combat,file="../result/allmeth_combat.csv",quote=F)
+save(allmeth.combat,file="../result/allmeth_combat.RData")
+save(tumor_meth_combat,tumor_combat_pheno,tumor_meth,tumor_pheno,normal_meth,normal_pheno,normal_meth_combat,normal_combat_pheno,allmeth,allpheno,allmeth.combat,allpheno_combat,file="../result/combat_tumor_normalData.RData")
+save(tumor_meth_combat,tumor_meth,tumor_pheno,normal_meth,normal_pheno,normal_meth_combat,allmeth,allpheno,allmeth.combat,file="../result/combat_tumor_normalData1.RData")

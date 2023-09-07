@@ -406,3 +406,10 @@ plot_gene=function(cpgs,groups=c("1","2","3"),title="",ymax=0.8)
 }
 
 #sbatch --mem=6umphunter_normal_tree34g --cpus-per-task=12 --time=3-12:00:00 --gres=lscratch:64  /data/BB_Bioinformatics/Kevin/HKBC_methylation/code/diff_analysis.R
+
+#to get FDR/qvalue of DMR results
+tmp=dmrs_hyper_normal_tree3$table
+tmp$p.valueArea[which(tmp$p.valueArea==0)]=1/nrow(tmp)/100
+tmp$fdr=p.adjust(tmp$p.valueArea,method = "fdr")
+tmp$qvalue=qvalue(tmp$p.valueArea)$qvalues
+sum(tmp$fdr<0.05) #3
